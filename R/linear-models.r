@@ -31,5 +31,6 @@ linear_model <- function(formula, data) {
   
   rownames(pseudo.inv) <- colnames(x)
   x.pseudo.inv <- list(coefficients = pseudo.inv)
+  class(x.pseudo.inv) <- "lm"
   x.pseudo.inv
 }
