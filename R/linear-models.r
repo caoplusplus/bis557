@@ -17,14 +17,18 @@ linear_model <- function(formula, data) {
   n <- dim(x)[1]
   p <- dim(x)[2]
   udv <- svd(x)
-  if (n<p){
+  if (n < p)
+  {
     x.inv <- udv$v[1:n,] %*% diag(1 / udv$d) %*% t(udv$u)
     pseudo.inv <- rbind((x.inv %*% y), NA)
-    while(p-n > 1){
+    while(p - n > 1)
+    {
       pseudo.inv <- rbind(pseudo.inv, NA)
       p <- p - 1
     }
-  } else{
+  }
+  else
+  {
     x.inv <- udv$v %*% diag(1 / udv$d) %*% t(udv$u)
     pseudo.inv <- x.inv %*% y
   }
