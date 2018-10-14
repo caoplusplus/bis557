@@ -2,4 +2,4 @@
 
 export(linear_model)
 export(ridge_reg)
-importFrom("stats", "model.matrix")
+importForm(stats, lm)
