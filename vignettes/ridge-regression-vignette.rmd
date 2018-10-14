@@ -18,12 +18,12 @@ Ridge regression is a technique for analyzing multiple regression data that suff
 
 ```{r}
 library(bis557)
+
 data(ridge_train)
 data(ridge_test)
-
 ridge_test_scale <- as.data.frame(scale(ridge_test))
 ridge_train_scale <- as.data.frame(scale(ridge_train))
-formula <- y ~ .-1
+formula <- y ~. - 1
 mse <- c()
 lambda <- seq(15, 45, by = .01)
 
