@@ -6,7 +6,8 @@
 #' @param data a data.frame
 #' @return A ridge regression object
 #' @examples
-#' fit_ridge <- ridge_reg(y ~. -1, lambda, ridge_train_scale)
+#' iris[, 1:4] <- scale(iris[, 1:4])
+#' fit_ridge <- ridge_reg(y ~. -1, 2.5, iris)
 #' summary(fit_ridge)
 #' @export
 ridge_reg <- function(formula, lambda, data) {
