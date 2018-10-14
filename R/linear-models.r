@@ -9,9 +9,11 @@
 #' summary(fit)
 #' @export
 linear_model <- function(formula, data) {
+  rownames(data) <- NULL
   x <- model.matrix(formula, data)
   y <- as.matrix(data[, as.character(formula)[2]], ncol = 1)
   y <- y[as.numeric(rownames(x)),, drop = FALSE]
+  cl <- match.call()
   
   n <- dim(data)[1]
   p <- dim(data)[2]
@@ -30,5 +32,6 @@ linear_model <- function(formula, data) {
   rownames(pseudo.inv) <- colnames(x)
   x.pseudo.inv <- list(coefficients = pseudo.inv)
   class(x.pseudo.inv) <- "lm"
+  x.pseudo.inv$call <- cl
   x.pseudo.inv
 }
