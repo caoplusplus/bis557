@@ -13,8 +13,8 @@ linear_model <- function(formula, data) {
   y <- as.matrix(data[, as.character(formula)[2]], ncol = 1)
   y <- y[as.numeric(rownames(x)),, drop = FALSE]
   
-  n <- dim(x)[1]
-  p <- dim(x)[2]
+  n <- dim(data)[1]
+  p <- dim(data)[2]
   udv <- svd(x)
   if (n < p)
   {
