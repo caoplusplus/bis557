@@ -9,7 +9,7 @@ output:
 ---
 <!--
 %\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{The linear model vignette}
+%\VignetteIndexEntry{The ridge regression vignette}
 -->
 
 ## The ridge_reg function
