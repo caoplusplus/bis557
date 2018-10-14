@@ -1,4 +1,3 @@
-
 #' Fit a linear model
 #'
 #' @description This function passes parameters to the lm function.
@@ -20,12 +19,7 @@ linear_model <- function(formula, data) {
   if (n < p)
   {
     x.inv <- udv$v[1:n,] %*% diag(1 / udv$d) %*% t(udv$u)
-    pseudo.inv <- rbind((x.inv %*% y), NA)
-    while(p - n > 1)
-    {
-      pseudo.inv <- rbind(pseudo.inv, NA)
-      p <- p - 1
-    }
+    pseudo.inv <- rbind((x.inv %*% y), as.vector(rep(NA, p - n)))
   }
   else
   {
