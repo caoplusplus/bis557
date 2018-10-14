@@ -7,7 +7,7 @@
 #' @return A ridge regression object
 #' @examples
 #' iris[, 1:4] <- scale(iris[, 1:4])
-#' fit_ridge <- ridge_reg(y ~. -1, 2.5, iris)
+#' fit_ridge <- ridge_reg(Sepal.Length ~. -1, 2.5, iris)
 #' summary(fit_ridge)
 #' @export
 ridge_reg <- function(formula, lambda, data) {
