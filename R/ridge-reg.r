@@ -24,6 +24,6 @@ ridge_reg <- function(formula, lambda, data) {
   
   rownames(beta) <- colnames(x)
   ret <- list(coefficients = beta, lambda = lambda)
-  class(ret) <- "ridge_reg"
+  class(ret) <- "ridge reg"
   ret
 }
