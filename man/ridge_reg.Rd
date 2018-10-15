@@ -17,9 +17,9 @@ ridge_reg(formula, lambda, data)
 A ridge regression object
 }
 \description{
-This function passes parameters to coefficients in ridge regression.
+This function passes parameters to the ridge regression.
 }
 \examples{
-fit_ridge <- ridge_reg(y ~. -1, lambda, ridge_train_scale)
+fit_ridge <- ridge_reg(Sepal.Length ~. -1, 2.5, iris)
 summary(fit_ridge)
 }
