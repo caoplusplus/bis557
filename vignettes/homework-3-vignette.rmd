@@ -188,23 +188,20 @@ s_j \in
 \end{cases}
 $$
 ```{r}
-library(glmnet)
-library(MASS)
-
 lasso_reg_with_screening <- function(X, y, lambda) {
-  fit <- glmnet(X, y, alpha = 1, lambda = lambda)
+  fit <- glmnet::glmnet(X, y, alpha = 1, lambda = lambda)
   b <- as.vector(fit$beta)
   resids <- y - X %*% b
   s <- apply(X, 2, function(xj) crossprod(xj, resids)) / lambda / nrow(X)
   (b == 0) & (abs(s) >= 1)
 }
 
-sample <- sample(1:nrow(Boston), size = 100, replace = FALSE)
-train_B <- Boston[-sample, ]
-xtrain <- as.matrix(train_B[, -14])
-ytrain <- train_B$medv
-data(Boston)
-lasso_reg_with_screening(xtrain, ytrain, 0.3)
+#data(Boston)
+#sample <- sample(1:nrow(Boston), size = 100, replace = FALSE)
+#train_B <- Boston[-sample, ]
+#xtrain <- as.matrix(train_B[, -14])
+#ytrain <- train_B$medv
+#lasso_reg_with_screening(xtrain, ytrain, 0.3)
 ```
 
 
