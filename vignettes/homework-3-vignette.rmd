@@ -14,8 +14,6 @@ output:
 
 ##1. Page 117, question 7.
 ```{r}
-library(ggplot2)
-
 kern_density <- function(x, h, x_new) {
   kde <- c()
   for (i in 1:length(x_new)) {
