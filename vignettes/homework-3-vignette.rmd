@@ -188,8 +188,10 @@ s_j \in
 \end{cases}
 $$
 ```{r}
+library(glmnet)
+
 lasso_reg_with_screening <- function(X, y, lambda) {
-  fit <- glmnet::glmnet(X, y, alpha = 1, lambda = lambda)
+  fit <- glmnet(X, y, alpha = 1, lambda = lambda)
   b <- as.vector(fit$beta)
   resids <- y - X %*% b
   s <- apply(X, 2, function(xj) crossprod(xj, resids)) / lambda / nrow(X)
