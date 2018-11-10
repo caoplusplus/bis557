@@ -188,8 +188,6 @@ s_j \in
 \end{cases}
 $$
 ```{r}
-library(glmnet)
-
 lasso_reg_with_screening <- function(X, y, lambda) {
   fit <- glmnet(X, y, alpha = 1, lambda = lambda)
   b <- as.vector(fit$beta)
@@ -198,13 +196,12 @@ lasso_reg_with_screening <- function(X, y, lambda) {
   (b == 0) & (abs(s) >= 1)
 }
 
-#data(Boston)
-#sample <- sample(1:nrow(Boston), size = 100, replace = FALSE)
-#train_B <- Boston[-sample, ]
-#xtrain <- as.matrix(train_B[, -14])
-#ytrain <- train_B$medv
-#lasso_reg_with_screening(xtrain, ytrain, 0.3)
+X <- as.matrix(iris[, 2:4])
+y <- iris$Sepal.Length
+lasso_reg_with_screening(X, y, 0.3)
 ```
+
+Function \textt{glmnet} doesn't satisfy the KKT conditions in the above case.
 
 
 
