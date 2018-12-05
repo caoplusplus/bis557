@@ -35,6 +35,8 @@ sparse_add(a, b)
 
 First, implement a 'sparse_multiply' function that multiplies two sparse matrices. Here, I also implement a 'sparse_transpose' function to transpose a matrix. In this way, we can simplify the algorithm of the sparse matrix multiplication.
 ```{r}
+library(dplyr)
+
 sparse_transpose <- function(a) {
   at <- a
   at$i <- a$j
