@@ -49,7 +49,11 @@ sparse_multiply <- function(a, b) {
   cc <- merge(a, bt, by = c("j"), all = TRUE, suffixes = c("1", "2"))
   cc$x <- cc$x1 * cc$x2
   cc <- na.omit(cc)
-  c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  cc <- cc[, c("i1", "i2", "x")]
+  c <- cc %>%
+    group_by(i1, i2) %>%
+    summarise(x=sum(x))
+  #c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
   names(c) <- c("i", "j", "x")
   c <- c[order(c$i, c$j),]
   c[, c("i", "j", "x")]
@@ -116,7 +120,7 @@ sparse.matrix <- function(i, j, x, dims) {
   a %*% b
 }
 
-'%A%.numeric' <- function(a, b) {
+'%*%.numeric' <- function(a, b) {
   if (!inherits(b, "numeric")) {
     stop("b argument is not a numeric vector type.")
   }
@@ -130,7 +134,11 @@ sparse.matrix <- function(i, j, x, dims) {
   cc <- merge(a, t(b), by = c("j"), all = TRUE, suffixes = c("1", "2"))
   cc$x <- cc$x1 * cc$x2
   cc <- na.omit(cc)
-  c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  cc <- cc[, c("i1", "i2", "x")]
+  #c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  c <- cc %>%
+    group_by(i1, i2) %>%
+    summarise(x=sum(x))
   names(c) <- c("i", "j", "x")
   c <- c[order(c$j),]
   attr(c, "dims")[1] <- attr(a, "dims")[1]
