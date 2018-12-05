@@ -64,15 +64,15 @@ Then, we are gonna create a new class `sparse.matrix` that has add `+`, multiply
 ```{r}
 sparse.matrix <- function(i, j, x, dims) {
   if (missing(dims)) {
-    c <- data.frame(i = i, j = j , x = x)
-    attr(c, "dims") <- c(max(i), max(j))
+    a <- data.frame(i = i, j = j , x = x)
+    attr(a, "dims") <- c(max(i), max(j))
   } 
   else {
-    ac<- data.frame(i = i, j = j, x = x)
-    attr(c, "dims") <- dims
+    a<- data.frame(i = i, j = j, x = x)
+    attr(a, "dims") <- dims
   }
-  class(c) <- c("sparse.matrix", class(c))
-  c
+  class(a) <- c("sparse.matrix", class(a))
+  a
 }
 
 
