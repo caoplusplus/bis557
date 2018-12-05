@@ -1,0 +1,74 @@
+---
+title: "Homework 4"
+author: "Yue Cao"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    self_contained: yes
+    toc: true
+---
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{The ridge regression vignette}
+-->
+
+##3
+Consider the sparse matrix implementation from class and the sparse add
+function:
+```{r}
+sparse_add <- function(a, b) {
+  c <- merge(a, b, by = c("i", "j"), all = TRUE, suffixes = c("1", "2"))
+  c$x1[is.na(c$x1)] <- 0
+  c$x2[is.na(c$x2)] <- 0
+  c$x <- c$x1 + c$x2
+  c[, c("i", "j", "x")]
+}
+
+a <- data.frame(i = c(1, 2), j = c(1, 1), x = c(3, 1))
+b <- data.frame(i = c(1, 2, 2), j = c(1, 1, 2), x = c(4.4, 1.2, 3))
+sparse_add(a, b)
+```
+
+        - Implement a `sparse_multiply` function that multiplies two sparse matrices.
+        - Create a new class `sparse.matrix` that has add `+`, multiply `%*%`, and transpose `t()` methods.
+        - Add test-sparse-matrix.r to the testthat directory of your bis557 package to show it works.
+
+
+```{r}
+sparse_transpose <- function(a) {
+  at <- a
+  at$i <- a$j
+  at$j <- a$i
+  at$x <- a$x
+  at <- at[order(at$i, at$j),]
+  at[, c("i", "j", "x")]
+}
+
+sparse_multiply <- function(a, b) {
+  bt <- sparse_transpose(b)
+  cc <- merge(a, bt, by = c("j"), all = TRUE, suffixes = c("1", "2"))
+  cc$x <- cc$x1 * cc$x2
+  cc <- na.omit(cc)
+  c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  names(c) <- c("i", "j", "x")
+  c <- c[order(c$i, c$j),]
+  c[, c("i", "j", "x")]
+}
+
+a <- data.frame(i = c(1, 2), j = c(1, 1), x = c(3, 1))
+b <- data.frame(i = c(1, 2, 2), j = c(1, 1, 2), x = c(4.4, 1.2, 3))
+sparse_multiply(a, b)
+```
+
+```{r}
+sparse.matrix <- function(i, j, x, dims) {
+  if (missing(dims)) {
+    a <- data.frame(i = i, j = j , x = x)
+  } 
+  else {
+    a <- data.frame(i = i, j = j, x = x)
+  }
+  class(a) <- c("sparse.matrix", class(a))
+  a
+}
+```
