@@ -104,6 +104,25 @@ sparse.matrix <- function(i, j, x, dims) {
   UseMethod("%*%", a)
 }
 
+'%*%.default' <- function(a, b) {
+  warning("No method to dispatch to, using default.")
+  a %*% b
+}
+
+'%*%.matrix' <- function(a, b) {
+  if (!inherits(b, "matrix") && !inherits(b, "Matrix")) {
+    stop("b argument is not a matrix type.")
+  }
+  a %*% b
+}
+
+'%A%.numeric' <- function(a, b) {
+  if (!inherits(b, "numeric")) {
+    stop("b argument is not a numeric vector type.")
+  }
+  a %*% b
+}
+
 '%*%.sparse.matrix' <- function(a, b) {
   if (attr(a, "dims")[2] != attr(b, "dims")[1]) {
     stop("should not multiply these two matrices.")
