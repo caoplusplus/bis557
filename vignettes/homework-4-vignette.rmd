@@ -12,6 +12,110 @@ output:
 %\VignetteIndexEntry{The ridge regression vignette}
 -->
 
+##1
+Exercise 5.8, Question 2.
+
+###Solution:
+From equation (5.19), we know that the Hessian matrix is as follows:
+$$
+H(l)=X^t \cdot diag(p \cdot (1-p)) \cdot X
+$$
+The relationship between the Hessian matrix and the matrix $X^tX$ is:
+$$
+H(l)=p(1-p)X^tX
+$$
+Since if a matrix is singular, it is ill-conditioned, while if a matrix is non-singular, it is well-conditioned. Then, our task is to find a matrix $X$ and propabilities $p$ satisfy that the linear Hessian $(X^tX)$ is non-singular and the logistic variation $p(1-p)X^tX$ is singular. It is obvious that if $p=0$ or $p=1$ and the linear Hessian $(X^tX)$ is non-singular, the linear Hessian $(X^tX)$ is well-conditioned but the logistic variation is not.
+
+
+
+##2
+Exercise 5.8, Question 4.
+
+###Solution:
+Just to simplify our discuss, we will start with a canonical exponential family.
+
+In this case, the likelihood function is as follows:
+$$
+\mathcal{L}(y)=\prod h(y_i) \cdot exp \{x_i^t\beta \cdot y_i - A(x_i^t\beta)\}
+$$
+The log likelihood is then,
+$$
+l(y) = \sum_{i=1}^n x_i^t\beta \cdot y_i - A(x_i^t\beta) + log(h(y_i))
+$$
+
+Add a ridge penalty to the likelihood function, we have
+$$
+l(y) = \sum_{i=1}^n x_i^t\beta \cdot y_i - A(x_i^t\beta) + log(h(y_i)) - \frac{1}{2}\lambda\Vert\beta\Vert^2
+$$
+With first derivatives given by
+$$
+\frac{\partial l}{\partial \beta_j}=\sum_{i=1}^nx_{i,j} \cdot [y_i - A'(x_i^t\beta)] - \lambda\beta_j
+$$
+And the second derivatives derived similarly as
+$$
+\frac{\partial^2 l}{\partial \beta_k \partial \beta_j}=\sum_{i=1}^n x_{i,j}x_{i,k} \cdot [ - A''(x_i^t\beta)] - \lambda \cdot \mathbf{1}(k=j)
+$$
+where $\mathbf{1}(k=j)$ is an indicator function.
+
+In the canonical form, the first derivative of $A$ with respect to $\eta$ gives the expected value of the random variable and the second derivative of $A$ with respect to $\eta$ yields the variance. (We can slightly update them in Iteratively Re-Weighted Least Squares later.) Therefore, the gradient function is
+$$
+\nabla_\beta l = X^t(y-\mathbb{E}y) - \lambda\beta,
+$$
+and the Hessian matrix becomes
+$$ 
+H = X^t \cdot diag(Var(y)) \cdot X + \lambda I_p
+$$
+Using the Newton-Raphson method with our formulae for for the Hessian and the gradient functions
+$$
+\begin{aligned}
+\beta^{(k+1)} &= \beta^{(k)} - H^{-1}(l)(\beta^{(k)}) \cdot \nabla_\beta (l)\beta^{(k)} \\
+&= \beta^{(k)} + \left[X^t \cdot diag(Var(y)) \cdot X + \lambda I_p\right]^{-1} \cdot \left[X^t(y-\mathbb{E}y) - \lambda\beta^{(k)}\right]
+\end{aligned}
+$$
+Defining $W$ as a diagnonal matrix of the variances ($W=diag(Var(y))$), this simplifies to
+$$
+\begin{aligned}
+\beta^{(k+1)}
+&= \beta^{(k)} + \left[X^t W X + \lambda I_p\right]^{-1} \cdot \left[X^t(y-\mathbb{E}y) - \lambda\beta^{(k)}\right] \\
+&= \left[X^t W X + \lambda I_p\right]^{-1}\left[\left(X^t W^t X + \lambda I_p\right)\beta^{(k)}-\lambda \beta^{(k)}+(X^tW^t) \cdot \left(\frac{y-\mathbb{E}^{(k)}}{W}\right)\right] \\
+&= \left[X^t W X + \lambda I_p\right]^{-1}\left[\left(X^t W^t X + \lambda I_p-\lambda I_p\right)\beta^{(k)}+(X^tW^t) \cdot \left(\frac{y-\mathbb{E}^{(k)}}{W}\right)\right] \\
+&= \left[X^t W X + \lambda I_p\right]^{-1} \cdot (X^tW^t) \cdot \left\{X\beta^{(k)} + \left(\frac{y-\mathbb{E}y^{(k)}}{W}\right)\right\} \\
+&= \left[X^t W X + \lambda I_p\right]^{-1}X^tW^tz
+\end{aligned}
+$$
+where $z=\left\{X\beta^{(k)} + \left(\frac{y-\mathbb{E}y^{(k)}}{W}\right)\right\}$.
+For Iteratively Re-Weighted Least Squares (IRWLS), we just need to slightly update $W$ and $z$ as follows:
+$$
+W = diag(\mu'(X\beta)^2/Var(y^{(k)})),
+$$
+and
+$$
+z=X\beta + \frac{y-\mu(X\beta)}{\mu'(X\beta)}.
+$$
+Thus, we can modify the function \texttt{irwls_glm} as follows:
+```{r}
+casl_glm_irwls_ridge <- fucntion(X, y, family, lambda, maxit=25, tol=1e-10)
+{
+  beta <- rep(0, ncol(X))
+  for (j in seq_len(maxit))
+  {
+    b_old <- beta
+    eta <- X %*% beta
+    mu <- family$linkinv(eta)
+    mu_p <- family$mu.eta(eta)
+    z <- eta + (y - mu) / mu_p
+    W <- as.numeric(mu_p^2 / family$variance(mu))
+    XtX <- crossprod(X, diag(W) %*% X) + diag(lambda)
+    Xtz <- crossprod(X, W * z)
+    beta <- solve(XtX, Xtz)
+    if(sqrt(crossprod(beta - b_old)) < tol) break
+  }
+  beta
+}
+```
+
+
+
 ##3
 Consider the sparse matrix implementation from class and the sparse add
 function:
@@ -33,10 +137,8 @@ sparse_add(a, b)
         - Create a new class `sparse.matrix` that has add `+`, multiply `%*%`, and transpose `t()` methods.
         - Add test-sparse-matrix.r to the testthat directory of your bis557 package to show it works.
 
-First, implement a 'sparse_multiply' function that multiplies two sparse matrices. Here, I also implement a 'sparse_transpose' function to transpose a matrix. In this way, we can simplify the algorithm of the sparse matrix multiplication.
+First, implement a 'sparse_multiply' function that multiplies two sparse matrices. Here, I also implement a 'sparse_transpose' function to transpose a matrix. In this way, we can simplify the algorithm of sparse matrix multiplication.
 ```{r}
-library(dplyr)
-
 sparse_transpose <- function(a) {
   at <- a
   at$i <- a$j
@@ -51,11 +153,7 @@ sparse_multiply <- function(a, b) {
   cc <- merge(a, bt, by = c("j"), all = TRUE, suffixes = c("1", "2"))
   cc$x <- cc$x1 * cc$x2
   cc <- na.omit(cc)
-  cc <- cc[, c("i1", "i2", "x")]
-  c <- cc %>%
-    group_by(i1, i2) %>%
-    summarise(x=sum(x))
-  #c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
   names(c) <- c("i", "j", "x")
   c <- c[order(c$i, c$j),]
   c[, c("i", "j", "x")]
@@ -68,6 +166,8 @@ sparse_multiply(a, b)
 
 Then, we are gonna create a new class `sparse.matrix` that has add `+`, multiply `%*%`, and transpose `t()` methods as follows:
 ```{r}
+library(dplyr)
+
 sparse.matrix <- function(i, j, x, dims) {
   if (missing(dims)) {
     a <- data.frame(i = i, j = j , x = x)
