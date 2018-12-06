@@ -20,11 +20,49 @@ From equation (5.19), we know that the Hessian matrix is as follows:
 $$
 H(l)=X^t \cdot diag(p \cdot (1-p)) \cdot X
 $$
-The relationship between the Hessian matrix and the matrix $X^tX$ is:
+An ill-conditioned matrix is a matrix whose condition number is large, while a well-conditioned matrix is a matrix whose condition number is small. Condition number is the ratio of the largest to smallest singular value in the singular value decomposition of a matrix. Suppose that the singular value decomposition of the matrix $X^tX$ is as follows:
 $$
-H(l)=p(1-p)X^tX
+X^tX = U \Sigma V^t
 $$
-Since if a matrix is singular, it is ill-conditioned, while if a matrix is non-singular, it is well-conditioned. Then, our task is to find a matrix $X$ and propabilities $p$ satisfy that the linear Hessian $(X^tX)$ is non-singular and the logistic variation $p(1-p)X^tX$ is singular. It is obvious that if $p=0$ or $p=1$ and the linear Hessian $(X^tX)$ is non-singular, the linear Hessian $(X^tX)$ is well-conditioned but the logistic variation is not.
+where
+$U$ is an $n \times n$ unitary matrix,
+$\Sigma$ is a diagonal $n \times p$ matrix with non-negative real numbers on the diagonal,
+$V$ is an $p \times p$ unitary matrix, and $V^t$ is the transpose of $V$.
+
+Then for the the Hessian matrix in (5.19), its singular value decomposition is
+$$
+H(l)=X^t \cdot diag(p \cdot (1-p)) \cdot X = U \tilde\Sigma V^t
+$$
+where $\tilde \Sigma = diag(p \cdot (1-p)) \cdot \Sigma$ and $U$, $V$ as before.
+
+To be specific, if $n \ge p$, we assume that $\Sigma = diag(\sigma_{1}, \sigma_2, ..., \sigma_p)$. Therefore, $\tilde \Sigma = diag(p_1(1-p_1)\sigma_1, \quad p_2(1-p_2)\sigma_2, ..., p_p(1-p_p)\sigma_p)$;
+
+If $n<p$, we assume that $\Sigma = diag(\sigma_{1}, \sigma_2, ..., \sigma_n)$. Therefore, $\tilde \Sigma = diag(p_1(1-p_1)\sigma_1, p_2(1-p_2)\sigma_2, ..., p_n(1-p_n)\sigma_n)$.
+
+*Here subscript $p$ stands for the dimension of $\beta$, and normal $p_i$ stands for probabilities, sorry for a little bit confusing
+
+To make this Hessian matrix more ill-conditioned than the matrix $X^tX$ itself, we need to make sure that the condition number of the Hessian matrix $H(l)$ is larger than that of the matrix $X^tX$ itself. That means that if we know the specific position of the largest singular values in the $\Sigma$, lets suppose that it is $k$ ($1\le k \le p$ if $n \ge p$ or $1\le k \le n$ if $n < p$). We can keep $k$ as the largest singular values position in $\tilde\Sigma$ by letting $p_k(1-p_k)$ as large as it can be.It is easy to know that when $p=0.5$, $p(1-p)$ can reach it maximum. So that we will set $p_k = 0.5$, now $p_k(1-p_k)\sigma_k$ must be the largest singular value of the Hessian matrix $H(l)$.
+
+For the smallest singular value of $H(l)$, we just need to guarantee that one of the singular values of $H(l)$ is infinitely approaching $0$. That is to say, we hope that for $1\le i \le p$ (if $n \ge p$) or $1\le i \le n$ (if $n < p$), $p_i(1-p_i)$ is pretty close to $0$, which indicates that $p_i(1-p_i)\sigma_i$ must be the smallest singular value of $H(l)$ approaching infinitely to $0$. In this case, $p_i$ will be very close to $0$ or $1$, such as $0.0000001$ or $0.999999$.
+
+And with these two singular values (the largest and the smallest one), we make sure that the condition number (ratio of the largest singular value to the smallest singular value) of the Hessian matrix approaches infinity, and must be bigger than that of the matrix $X^tX$.
+
+It is unnecessary to constrain the matrix $X^tX$, just avoiding that it is singular (or its condition number will be infinite).
+
+And we can generate a simple $2 \times 2$ matrix $X$ as follows:
+```{r}
+X <- matrix(c(1, 2, 3.5, 1), nrow = 2, ncol = 2)
+XtX <- crossprod(X, X)
+D <- svd(XtX)$d
+cn <- D[1]/D[2]
+# The condition number of XtX is 7.111111
+XpX <- crossprod(X, diag(c(0.5*(1-0.5), 0.0000001*(1-0.0000001))) %*% X)
+D2 <- svd(XpX)$d
+cn2 <- D2[1]/D2[2]
+# The condition number of the Hessian matrix is 12191843
+```
+
+In this case, we also let $p_1=0.5, p_2=0.0000001$, we can see that the linear Hessian $(X^tX)$ is well-conditioned but the logistic variation is not.
 
 
 
@@ -94,7 +132,7 @@ z=X\beta + \frac{y-\mu(X\beta)}{\mu'(X\beta)}.
 $$
 Thus, we can modify the function \texttt{irwls_glm} as follows:
 ```{r}
-casl_glm_irwls_ridge <- fucntion(X, y, family, lambda, maxit=25, tol=1e-10)
+casl_glm_irwls_ridge <- function(X, y, family, lambda, maxit=25, tol=1e-10)
 {
   beta <- rep(0, ncol(X))
   for (j in seq_len(maxit))
@@ -105,7 +143,7 @@ casl_glm_irwls_ridge <- fucntion(X, y, family, lambda, maxit=25, tol=1e-10)
     mu_p <- family$mu.eta(eta)
     z <- eta + (y - mu) / mu_p
     W <- as.numeric(mu_p^2 / family$variance(mu))
-    XtX <- crossprod(X, diag(W) %*% X) + diag(lambda)
+    XtX <- crossprod(X, diag(W) %*% X) + diag(rep(lambda, ncol(X)))
     Xtz <- crossprod(X, W * z)
     beta <- solve(XtX, Xtz)
     if(sqrt(crossprod(beta - b_old)) < tol) break
@@ -153,7 +191,10 @@ sparse_multiply <- function(a, b) {
   cc <- merge(a, bt, by = c("j"), all = TRUE, suffixes = c("1", "2"))
   cc$x <- cc$x1 * cc$x2
   cc <- na.omit(cc)
-  c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  cc$group <- cc %>% group_by(i1, i2) %>% group_indices()
+  c <- unique(cc[, c("i1", "i2")])
+  c$x <- rowsum(cc$x, cc$group)
+  #c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
   names(c) <- c("i", "j", "x")
   c <- c[order(c$i, c$j),]
   c[, c("i", "j", "x")]
@@ -180,7 +221,6 @@ sparse.matrix <- function(i, j, x, dims) {
   class(a) <- c("sparse.matrix", class(a))
   a
 }
-
 
 '+.sparse.matrix' <- function(a, b) {
   if (attr(a, "dims")[1] != attr(b, "dims")[1] || attr(a, "dims")[2] != attr(b, "dims")[2]) {
@@ -223,8 +263,8 @@ sparse.matrix <- function(i, j, x, dims) {
 }
 
 '%*%.numeric' <- function(a, b) {
-  if (!inherits(b, "numeric")) {
-    stop("b argument is not a numeric vector type.")
+  if (!inherits(y, "numeric")) {
+    stop("b argunment is not a numeric vector type")
   }
   a %*% b
 }
@@ -233,18 +273,27 @@ sparse.matrix <- function(i, j, x, dims) {
   if (attr(a, "dims")[2] != attr(b, "dims")[1]) {
     stop("should not multiply these two matrices.")
   }
+  
   cc <- merge(a, t(b), by = c("j"), all = TRUE, suffixes = c("1", "2"))
-  cc$x <- cc$x1 * cc$x2
   cc <- na.omit(cc)
-  cc <- cc[, c("i1", "i2", "x")]
-  #c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
-  c <- cc %>%
-    group_by(i1, i2) %>%
-    summarise(x=sum(x))
-  names(c) <- c("i", "j", "x")
+  cc$x <- cc$x1 * cc$x2
+  
+  #cc <- subset(cc, select = c("i1", "i2", "x"))
+  #cc$group <- cc %>% group_by(i1, i2) %>% group_indices()
+  #c <- unique(cc[, c("i1", "i2")])
+  #c$x <- rowsum(cc$x, cc$group)
+  
+  c <- aggregate(cc$x, by=list(cc$i1, cc$i2), FUN=sum)
+  
+  #c <- cc %>%
+  #  group_by(i1, i2) %>%
+  #  summarise(x=sum(x))
+  
+  names(c)[1:2] <- c("i", "j")
   c <- c[order(c$j),]
   attr(c, "dims")[1] <- attr(a, "dims")[1]
   attr(c, "dims")[2] <- attr(b, "dims")[2]
-  sparse.matrix(c$i, c$j, c$x, attr(c, "dims"))
+  dims <- attr(c, "dims")
+  sparse.matrix(c$i, c$j, c$x, dims)
 }
 ```
