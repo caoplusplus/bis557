@@ -189,8 +189,8 @@ sparse_transpose <- function(a) {
 sparse_multiply <- function(a, b) {
   bt <- sparse_transpose(b)
   cc <- merge(a, bt, by = c("j"), all = TRUE, suffixes = c("1", "2"))
-  cc$x <- cc$x1 * cc$x2
   cc <- na.omit(cc)
+  cc$x <- cc$x1 * cc$x2
   cc$group <- cc %>% group_by(i1, i2) %>% group_indices()
   c <- unique(cc[, c("i1", "i2")])
   c$x <- rowsum(cc$x, cc$group)
