@@ -2,4 +2,5 @@
 
 export(linear_model)
 export(ridge_reg)
+export(sparse.matrix)
 importFrom("stats", "model.matrix")
