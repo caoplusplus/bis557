@@ -261,15 +261,15 @@ t <- function(a, ...) {
   sparse.matrix(at$i, at$j, at$x, attr(at, "dims"))
 }
 
-'%*%.default' <- .Primitive("%*%")
+'%*%.default' = .Primitive("%*%")
 
 '%*%' <- function(a, ...) {
  UseMethod("%*%", a)
 }
 
-'%*%' <- function(a, b) {
- UseMethod("%*%", a)
-}
+#'%*%' <- function(a, b) {
+# UseMethod("%*%", a)
+#}
   
 '%*%.sparse.matrix' <- function(a, b) {
   if (attr(a, "dims")[2] != attr(b, "dims")[1]) {
