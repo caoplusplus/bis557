@@ -233,7 +233,7 @@ sparse.matrix <- function(i, j, x, dims) {
   a
 }
 
-'+.sparse.matrix' <- function(a, b) {
+`+.sparse.matrix` <- function(a, b) {
   if (attr(a, "dims")[1] != attr(b, "dims")[1] || attr(a, "dims")[2] != attr(b, "dims")[2]) {
     stop("should not add these two matrices.")
   }
@@ -250,7 +250,7 @@ t <- function(a, ...) {
   UseMethod("t", a)
 }
 
-'t.sparse.matrix' <- function(a) {
+`t.sparse.matrix` <- function(a) {
   at <- a
   at$i <- a$j
   at$j <- a$i
@@ -261,17 +261,13 @@ t <- function(a, ...) {
   sparse.matrix(at$i, at$j, at$x, attr(at, "dims"))
 }
 
-'%*%.default' = .Primitive("%*%")
+`%*%.default` = .Primitive("%*%")
 
-'%*%' <- function(a, ...) {
+`%*%` <- function(a, ...) {
  UseMethod("%*%", a)
 }
-
-#'%*%' <- function(a, b) {
-# UseMethod("%*%", a)
-#}
   
-'%*%.sparse.matrix' <- function(a, b) {
+`%*%.sparse.matrix` <- function(a, b) {
   if (attr(a, "dims")[2] != attr(b, "dims")[1]) {
     stop("should not multiply these two matrices.")
   }
