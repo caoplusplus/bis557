@@ -177,15 +177,13 @@ sparse_add(a, b)
 
 First, implement a 'sparse_multiply' function that multiplies two sparse matrices. Here, I also implement a 'sparse_transpose' function to transpose a matrix. In this way, we can simplify the algorithm of sparse matrix multiplication.
 ```{r}
-library(dplyr)
-
 sparse_transpose <- function(a) {
   at <- a
   at$i <- a$j
   at$j <- a$i
   at$x <- a$x
   at <- at[order(at$i, at$j),]
-  at[, c("i", "j", "x")]
+  at
 }
 
 sparse_multiply <- function(a, b) {
@@ -212,7 +210,7 @@ sparse_multiply <- function(a, b) {
   c <- subset(c, select = c("i1", "i2", "x"))
   names(c) <- c("i", "j", "x")
   c <- c[order(c$i, c$j),]
-  c[, c("i", "j", "x")]
+  c
 }
 
 a <- data.frame(i = c(1, 2), j = c(1, 1), x = c(3, 1))
@@ -336,6 +334,4 @@ sparse.matrix <- function(i, j, x, dims) {
   attr(c, "dims")[2] <- attr(b, "dims")[2]
   sparse.matrix(c$i, c$j, c$x, attr(c, "dims"))
 }
-
-sm1 %*% sm3
 ```
