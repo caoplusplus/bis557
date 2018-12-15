@@ -45,7 +45,7 @@ sparse.matrix <- function(i, j, x, dims) {
 #' create the transpose function
 #'
 #' @description transpose operation defined in sparse matrix class
-#' @param a a sparse.matrix object
+#' @param x a sparse.matrix object
 #' @return a sparse.matrix object
 #' @export
 `t.sparse.matrix` <- function(x) {
