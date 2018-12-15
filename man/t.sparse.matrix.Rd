@@ -4,10 +4,10 @@
 \alias{t.sparse.matrix}
 \title{create the transpose function}
 \usage{
-\method{t}{sparse.matrix}(a)
+\method{t}{sparse.matrix}(x)
 }
 \arguments{
-\item{a}{a sparse.matrix object}
+\item{x}{a sparse.matrix object}
 }
 \value{
 a sparse.matrix object
