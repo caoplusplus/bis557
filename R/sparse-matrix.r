@@ -1,6 +1,6 @@
-#' create the class "sparse.matrix" that has add `+`, multiply `%*%`, and transpose `t()` methods
+#' create the class 'sparse.matrix'
 #'
-#' @description create sparse matrix using sparse.matrix, operations defined including add, multiply and transpose
+#' @description create sparse matrix class using sparse.matrix
 #' @param i row indices of elements in a sparse matrix
 #' @param j col indices of elements in a sparse matrix
 #' @param x value of the sparse matrix corresponding to i, j
@@ -20,6 +20,13 @@ sparse.matrix <- function(i, j, x, dims) {
   a
 }
 
+#' create the add function
+#'
+#' @description add operation defined in sparse matrix class
+#' @param a a sparse.matrix object
+#' @param b a sparse.matrix object
+#' @return a sparse.matrix object
+#' @export
 `+.sparse.matrix` <- function(a, b) {
   if (attr(a, "dims")[1] != attr(b, "dims")[1] || attr(a, "dims")[2] != attr(b, "dims")[2]) {
     stop("should not add these two matrices.")
@@ -37,6 +44,12 @@ t <- function(a, ...) {
   UseMethod("t", a)
 }
 
+#' create the transpose function
+#'
+#' @description transpose operation defined in sparse matrix class
+#' @param a a sparse.matrix object
+#' @return a sparse.matrix object
+#' @export
 `t.sparse.matrix` <- function(a) {
   at <- a
   at$i <- a$j
@@ -54,6 +67,13 @@ t <- function(a, ...) {
   UseMethod("%*%", a)
 }
 
+#' create the multiply function
+#'
+#' @description multiplication operation defined in sparse matrix class
+#' @param a a sparse.matrix object
+#' @param b a sparse.matrix object
+#' @return a sparse.matrix object
+#' @export
 `%*%.sparse.matrix` <- function(a, b) {
   if (attr(a, "dims")[2] != attr(b, "dims")[1]) {
     stop("should not multiply these two matrices.")
