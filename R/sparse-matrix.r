@@ -48,9 +48,12 @@ sparse.matrix <- function(i, j, x, dims) {
 #' @param a a sparse.matrix object
 #' @return a sparse.matrix object
 #' @export
-`t.sparse.matrix` <- function(a) {
+`t.sparse.matrix` <- function(x) {
+  a <- x
+  attr(a, "dims") <- attr(x, "dims")
   sparse.matrix(a$j, a$i, a$x, c(attr(a, "dims")[2], attr(a, "dims")[1]))
 }
+
 
 `%*%.default` <- .Primitive("%*%")
 
