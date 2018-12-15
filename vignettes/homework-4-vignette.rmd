@@ -3,9 +3,11 @@ title: "Homework 4"
 author: "Yue Cao"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     self_contained: yes
-    toc: true
+    toc: yes
 ---
 <!--
 %\VignetteEngine{knitr::rmarkdown}
@@ -130,7 +132,7 @@ and
 $$
 z=X\beta + \frac{y-\mu(X\beta)}{\mu'(X\beta)}.
 $$
-Thus, we can modify the function \texttt{irwls_glm} as follows:
+Thus, we can modify the function irwls_glm as follows:
 ```{r}
 casl_glm_irwls_ridge <- function(X, y, family, lambda, maxit=25, tol=1e-10)
 {
@@ -261,7 +263,7 @@ t <- function(a, ...) {
   sparse.matrix(at$i, at$j, at$x, attr(at, "dims"))
 }
 
-`%*%.default` = .Primitive("%*%")
+`%*%.default` <- .Primitive("%*%")
 
 `%*%` <- function(a, ...) {
  UseMethod("%*%", a)

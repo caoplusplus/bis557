@@ -6,7 +6,7 @@
 #' @param x value of the sparse matrix corresponding to i, j
 #' @param dims dimensions of the sparse matrix
 #' @return A sparse.matrix object
-#' @export sparse.matrix
+#' @export
 sparse.matrix <- function(i, j, x, dims) {
   if (missing(dims)) {
     a <- data.frame(i = i, j = j , x = x)
