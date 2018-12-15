@@ -20,6 +20,7 @@ sparse.matrix <- function(i, j, x, dims) {
   a
 }
 
+
 #' create the add function
 #'
 #' @description add operation defined in sparse matrix class
@@ -40,9 +41,6 @@ sparse.matrix <- function(i, j, x, dims) {
   sparse.matrix(c$i, c$j, c$x, attr(c, "dims"))
 }
 
-t <- function(a, ...) {
-  UseMethod("t", a)
-}
 
 #' create the transpose function
 #'
@@ -51,14 +49,7 @@ t <- function(a, ...) {
 #' @return a sparse.matrix object
 #' @export
 `t.sparse.matrix` <- function(a) {
-  at <- a
-  at$i <- a$j
-  at$j <- a$i
-  at$x <- a$x
-  at <- at[order(at$i, at$j),]
-  attr(at, "dims")[1] <- attr(a, "dims")[2]
-  attr(at, "dims")[2] <- attr(a, "dims")[1]
-  sparse.matrix(at$i, at$j, at$x, attr(at, "dims"))
+  sparse.matrix(a$j, a$i, a$x, c(attr(a, "dims")[2], attr(a, "dims")[1]))
 }
 
 `%*%.default` <- .Primitive("%*%")
@@ -66,6 +57,7 @@ t <- function(a, ...) {
 `%*%` <- function(a, ...) {
   UseMethod("%*%", a)
 }
+
 
 #' create the multiply function
 #'
