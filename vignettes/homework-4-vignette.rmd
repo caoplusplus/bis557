@@ -11,7 +11,7 @@ output:
 ---
 <!--
 %\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{The ridge regression vignette}
+%\VignetteIndexEntry{The homework 4 vignette}
 -->
 
 ##1
