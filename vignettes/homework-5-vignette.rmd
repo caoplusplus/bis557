@@ -16,6 +16,7 @@ output:
 ```{r}
 library(keras)
 library(glmnet)
+install_keras()
 
 # The data, shuffled and split between train and test sets
 mnist <- dataset_mnist()
